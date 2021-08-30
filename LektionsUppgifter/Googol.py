@@ -10,3 +10,5 @@ import datetime
 
 now = datetime.datetime.now()
 print(now.hour)
+googol = 10**100
+timeHours = googol//60 
