@@ -2,6 +2,11 @@ class Djur:
     def __init__(self,namn):
         self.namn = namn
 
+    def at(self):
+        print('Djuret åt')
+    def sov(self):
+        print('Djuret sover')
+
 class Fagel(Djur):
     def __init__(self, namn, vingspann):
         super().__init__(namn)
@@ -11,6 +16,9 @@ class Fisk(Djur):
     def __init__(self, namn, maxdjup):
         super().__init__(namn)
         self.maxdjup = maxdjup
+
+    def simma(self):
+        print('fisken simmar')
 
 class Torsk(Fisk):
     def __init__(self, namn, maxdjup, hastighet):
@@ -22,6 +30,9 @@ class Haj(Fisk):
         super().__init__(namn, maxdjup)
         self.antalTänder = antalTänder
 
+    def at(self, djur):
+        print(self.namn, 'åt', djur.namn)
+
 def fånga(haj, torsk):
     if haj.maxdjup >= torsk.maxdjup and torsk.hastighet < 30:
         output = True
@@ -31,6 +42,10 @@ def fånga(haj, torsk):
 
 a = Haj("Felix", 1000, 52)
 b = Torsk("Torsten", 500, 30)
+
+b.simma()
+
+a.at(b)
 
 haj = a
 torsk = b
