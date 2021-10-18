@@ -1,3 +1,4 @@
+'''
 class Djur:
     def __init__(self,namn):
         self.namn = namn
@@ -50,3 +51,23 @@ a.at(b)
 haj = a
 torsk = b
 print(fånga(haj,torsk))
+'''
+
+class Fordon:
+    def kör(self):
+        print("Nu kör vi!")
+class Bil(Fordon):
+    def tuta(self):
+        print("Tuuut!!")
+class Sportbil(Bil):
+    def kör(self):
+        print("Nu kör sportbilen!")
+class Cykel(Fordon):
+    def plinga(self):
+        print("Pling!")
+
+c = Cykel()
+b = Sportbil()
+b.kör()     # anropar en Fordon-metod i ett Bil-objekt
+b.tuta()    # anropar en Bil-metod
+c.plinga()
