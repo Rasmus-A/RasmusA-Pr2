@@ -1,6 +1,7 @@
 import ctypes
 from tkinter import *
 root = Tk()
+secondary = Tk()
 MessageBox = ctypes.windll.user32.MessageBoxW
 b = Button(root, text ="BRUHMOMENT")
 def bruhmomentExecutor(self):

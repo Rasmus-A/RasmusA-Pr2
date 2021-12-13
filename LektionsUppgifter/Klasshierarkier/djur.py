@@ -1,4 +1,4 @@
-'''
+
 class Djur:
     def __init__(self,namn):
         self.namn = namn
@@ -51,7 +51,7 @@ a.at(b)
 haj = a
 torsk = b
 print(fånga(haj,torsk))
-'''
+
 
 class Fordon:
     def kör(self):
