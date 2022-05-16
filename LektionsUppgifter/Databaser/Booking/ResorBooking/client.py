@@ -10,14 +10,20 @@ mydb = mysql.connector.connect(
 )
 mycursor = mydb.cursor()
 
+class Route:
+    def __init__(self, start, destination):
+        self.start = start
+        self.destination = destination
+
+
 root = Tk()
 
 w = root.winfo_screenwidth()
 h = root.winfo_screenheight()
 
-eyeOpen = PhotoImage(file='ResorBooking/Images/eyeOpen.jpg')
-eyeClosed = PhotoImage(file='Images/eyeClosed.jpg')
+def showRoute(Route):
 
+    pass
 
 def register():
     pass
@@ -56,7 +62,7 @@ def loginScreen():
     usernameEntry = Entry(login_screen)
     passwordEntry = Entry(login_screen, show='*')
 
-    showPasswordButton = Button(login_screen, image=eyeOpen)
+    showPasswordButton = Button(login_screen, text='S')
     loginButton = Button(login_screen, text='Login', command=login)
     registerButton = Button(login_screen, text='Register here!', command=registerScreen)
 
@@ -72,6 +78,46 @@ def loginScreen():
 
     registerLabel.grid(row=7, column=1, sticky='e', pady=(0,5))
     registerButton.grid(row=7, column=2, columnspan=2, sticky='w', padx=(0,5), pady=(0,5))
+
+def mainScreen():
+    main_screen = Toplevel()
+    main_screen.grid_rowconfigure(0, weight=1)
+    main_screen.grid_columnconfigure(0, weight=1)
+    main_screen.title('Insert name here')
+
+    # main screen content
+    contentFrame = Frame(main_screen)
+    methodFrame = Frame(main_screen)
+    routeFrame = Frame(main_screen)
+
+    # main screen layout
+    methodFrame.grid(row=0, column=0, columnspan=2, sticky='ew')
+    routeFrame.grid(row=1, column=0, sticky='ns')    
+    contentFrame.grid(row=1, column=1, sticky='nsew')
+
+    # content frame content
+    startLabel = Label(contentFrame, text='')
+    destinationLabel = Label(contentFrame, text='')
+
+    # travel method frame content
+    travelByLabel = Label(methodFrame, text='Travel by:')
+    busButton = Button(methodFrame, text='Bus', command=lambda:selected_method='bus')
+    trainButton = Button(methodFrame, text='Train', command=lambda:selected_method='train')
+    airplaneButton = Button(methodFrame, text='Airplane', command=lambda:selected_method='airplane')
+    boatButton = Button(methodFrame, text='Boat', command=lambda:selected_method='boat')
+
+    # travel method layout
+    travelByLabel.grid(column=0, sticky='ew')
+    busButton.grid(column=1, sticky='ew')
+    trainButton.grid(column=2, sticky='ew')
+    airplaneButton.grid(column=3, sticky='ew')
+    boatButton.grid(column=4, sticky='ew') 
+
+    # route screen content
+    for i in Route:
+        if Route.method == selected_method:
+            Route.name = Button(routeFrame, textvariable=Route.name, command=lambda:showRoute(Route))
+            
 
 loginScreen()
 
