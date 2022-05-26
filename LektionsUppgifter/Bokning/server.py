@@ -19,38 +19,70 @@ def start_server():
     return s
 s = start_server()
 
-def addRoute():
-    pass
-
-def editRoute():
-    pass
-
-def addUser(data):
-    print(data)
-    sql = "INSERT INTO users (firstname, lastname, email, username, password) VALUES (%s, %s, %s, %s, %s)"
-    val = (data[1], data[2], data[3], data[4], data[5])
+def addRoute(instructions):
+    sql = "INSERT INTO routes (Origin, Destination, Method, Distance, Price) VALUES (%s, %s, %s, %s, %s);"
+    val = (instructions[1], instructions[2], instructions[3], instructions[4], instructions[5])
+    mycursor.execute(sql, val)
+    
+def addUser(instructions):
+    print(instructions)
+    sql = "INSERT INTO users (firstname, lastname, email, username, password) VALUES (%s, %s, %s, %s, %s);"
+    val = (instructions[1], instructions[2], instructions[3], instructions[4], instructions[5])
     mycursor.execute(sql, val)
     mydb.commit()
 
-def editUser():
-    pass
+def editItem(instructions):
+    table = instructions[1]
+    set_column = instructions[2][0]
+    set_value = instructions[2][1]
+    where_column = instructions[3][0]
+    where_value = instructions[3][1]
 
+    sql = f"UPDATE {table} SET {set_column} = '{set_value}' WHERE {where_column} = '{where_value}'"
+    mycursor.execute(sql)
+
+def deleteItem(instructions):
+    table = instructions[1]
+    where_column = instructions[2][0]
+    where_value = instructions[2][1]
+
+    sql = f"DELETE FROM {table} WHERE {where_column} = '{where_value}';"
+    mycursor.execute(sql)
+
+def fetchItemData(instructions):
+    table = instructions[1]
+    select_column = instructions[2]
+    where_column = instructions[3][0]
+    where_value = instructions[3][1]
+
+    sql = f"SELECT {select_column} FROM {table} WHERE {where_column} = '{where_value}';"
+    mycursor.execute(sql)
+    answer = mycursor.fetchall()[0][0]
+    return answer
+    
 actionsDic = {
     1:addRoute,
-    2:editRoute,
-    3:addUser,
-    4:editUser
+    2:addUser,
+    3:editItem,
+    4:deleteItem,
+    5:fetchItemData
 }
 
 def clientHandler(conn):
-    data = conn.recv(1024)
+    instructions = conn.recv(1024).decode('utf-8')
     print('received')
-    data = data.decode('utf-8')
-    print(data)
-    data = eval(data)
-    print(data)
-    actionsDic[data[0]](data)
-    print('success')
+    print(instructions)
+    print(type(instructions))
+    instructions = eval(instructions)
+    print(instructions)
+    print(type(instructions))
+    userInfo = actionsDic[instructions[0]](instructions)
+    print(userInfo)
+    if userInfo != '':
+        userInfo = userInfo.encode('utf-8')
+        conn.send(userInfo)
+
+
 while True:
     conn, address = s.accept()
     start_new_thread(clientHandler, (conn, ))

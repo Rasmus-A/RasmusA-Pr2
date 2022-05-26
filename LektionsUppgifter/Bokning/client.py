@@ -20,14 +20,39 @@ def connect_to_server():
 conn = connect_to_server()
 
 class Route:
-    def __init__(self, start, destination):
-        self.start = start
-        self.destination = destination
+    def __init__(self, id):
+        self.origin = fetchRouteInfo('origin', 'id', id)
+        self.destination = fetchRouteInfo('destination', 'id', id)
+        self.method = fetchRouteInfo('method', 'id', id)
+        self.distance = fetchRouteInfo('distance', 'id', id)
+        self.price = fetchRouteInfo('price', 'id', id)
+
+class RouteOnSurface(Route):
+    pass
+
+class RouteInAir(Route):
+    pass
+
+class BusRoute(RouteOnSurface):
+    pass
+
+class TrainRoute(RouteOnSurface):
+    pass
+
+class BoatRoute(RouteOnSurface):
+    pass
+
+class AirplaneRoute(RouteInAir):
+    pass
+
 
 root = Tk()
 
 w = root.winfo_screenwidth()
 h = root.winfo_screenheight()
+
+def fetchRouteInfo():
+    pass
 
 def showRoute(Route):
 
@@ -38,35 +63,47 @@ def selectMethod(method):
 
 
 
+def fetchUserInfo(*request):   # info tuple på formen SELECT (sökt information) WHERE (kolumnnamn) = (värde)
+    answer = []
+    for i in request:
+        print(i)
+        instructions = str([5, i]).encode('utf-8')
+        conn.send(instructions)
+        answer.append(conn.recv(1024).decode('utf-8'))
+    print(type(answer))
+    print(answer[0])
+    return answer
+
 def register(firstName, lastName, email, username, password):
     global registerErrorLabel
     hashedPassword = hashlib.sha256(password.encode('utf-8'))
     print(hashedPassword.digest())
-    data = str([3, firstName, lastName, email, username, hashedPassword.hexdigest()]).encode('utf-8')
+    instructions = str([3, firstName, lastName, email, username, hashedPassword.hexdigest()]).encode('utf-8')
     try:
-        conn.send(data)
+        conn.send(instructions)
         root.deiconify()
-
     except:
-        registerErrorLabel.config(text='Registration failed, please try again!')
+        registerErrorLabel.config(text='Registration failed, please try again')
     
     
 def signIn(username, password):
     global signInErrorLabel        
     hashedPassword = hashlib.sha256(password.encode('utf-8'))
-    data = str(5, username, hashedPassword.hexdigest()).encode('utf-8')
+    password = fetchUserInfo(('password', 'username', username))
     try:
-        conn.send(data)
-
-        if hashedPassword == password:
-            signInScreen.destroy()
+        print('Waiting for response')
+        if hashedPassword.hexdigest() == password[0]:
+            signIn_screen.withdraw()
             root.deiconify()
+        elif hashedPassword.hexdigest() != password[0]:
+            signInErrorLabel.configure(text='Incorrect username or password')
     except:
-        signInErrorLabel.configure(text='Incorrect username or password')
+        print('error')
+        signInErrorLabel.configure(text='An error has occured, please try again')
         
 
 def registerScreen():
-    global registerErrorLabel
+    global registerErrorLabel, register_screen
     def passwordConfig():
         if passwordVisibility.get() == 'S':
             pass
@@ -123,7 +160,7 @@ def registerScreen():
     signInButton.grid(row=13, column=0, columnspan=4, sticky='ew', padx=5, pady=(0,5))
     
 def signInScreen():
-    global signInErrorLabel
+    global signInErrorLabel, signIn_screen
     # Sign in screen content
     signIn_screen = Toplevel()
     signIn_screen.title('Sign In')
@@ -141,7 +178,7 @@ def signInScreen():
     passwordEntry = Entry(signIn_screen, show='*')
 
     showPasswordButton = Button(signIn_screen, text='S')
-    signInButton = Button(signIn_screen, text='Login', command=lambda: [signIn(usernameEntry.get(), passwordEntry.get()), signIn_screen.withdraw()])
+    signInButton = Button(signIn_screen, text='Login', command=lambda: [signIn(usernameEntry.get(), passwordEntry.get())])
     registerButton = Button(signIn_screen, text='Register here!', command=lambda: [registerScreen(), signIn_screen.withdraw()])
 
     # Sign in screen layout
