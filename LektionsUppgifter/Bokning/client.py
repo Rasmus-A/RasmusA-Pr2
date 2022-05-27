@@ -20,39 +20,75 @@ def connect_to_server():
 conn = connect_to_server()
 
 class Route:
+    _registry = []
+
     def __init__(self, id):
-        self.origin = fetchRouteInfo('origin', 'id', id)
-        self.destination = fetchRouteInfo('destination', 'id', id)
-        self.method = fetchRouteInfo('method', 'id', id)
-        self.distance = fetchRouteInfo('distance', 'id', id)
-        self.price = fetchRouteInfo('price', 'id', id)
+        self._registry.append(self)
+        self._id = id
+        self.getRoute()
+        print('i live')
+    
+    def getRoute(self):
+        self._origin = fetchItemInfo('origin', 'routes', 'id', self._id)[0]
+        self._destination = fetchItemInfo('destination', 'routes', 'id', self._id)[0]
+        self._method = fetchItemInfo('method', 'routes', 'id', self._id)[0]
+        self._distance = int(fetchItemInfo('distance', 'routes', 'id', self._id)[0])
+        self._price = int(fetchItemInfo('price', 'routes', 'id', self._id)[0])
+
+    def getID(self):
+        return self._id
+
+    def getOrigin(self):
+        return self._origin
+    
+    def getDestination(self):
+        return self._destination
+    
+    def getMethod(self):
+        return self._method
+
+    def getDistance(self):
+        return self._distance
+
+    def getPrice(self):
+        return self._price
 
 class RouteOnSurface(Route):
-    pass
+    def __init__(self, id):
+        super().__init__(id)
+        self._paymentInAdvance = False
 
 class RouteInAir(Route):
-    pass
+    def __init__(self, id):
+        super().__init__ (id)
+        self._paymentIndAdvance = True
 
 class BusRoute(RouteOnSurface):
-    pass
+    def __init__(self, id):
+        super().__init__(id)
+        self.time = self._distance/80
 
 class TrainRoute(RouteOnSurface):
-    pass
+    def __init__(self, id):
+        super().__init__(id)
+        self.time = self._distance/200
 
 class BoatRoute(RouteOnSurface):
-    pass
+    def __init__(self, id):
+        super().__init__(id)
+        self.time = self._distance/45
 
 class AirplaneRoute(RouteInAir):
-    pass
+    def __init__(self, id):
+        super().__init__(id)
+        self.time = self._distance/900
+
 
 
 root = Tk()
 
 w = root.winfo_screenwidth()
 h = root.winfo_screenheight()
-
-def fetchRouteInfo():
-    pass
 
 def showRoute(Route):
 
@@ -63,15 +99,16 @@ def selectMethod(method):
 
 
 
-def fetchUserInfo(*request):   # info tuple på formen SELECT (sökt information) WHERE (kolumnnamn) = (värde)
+def fetchItemInfo(*request):   # info tuple på formen SELECT (sökt information) FROM (table) WHERE (kolumnnamn) = (värde)
     answer = []
     for i in request:
         print(i)
-        instructions = str([5, i]).encode('utf-8')
+        instructions = ",".join([5, i.split(",")])
+        print(instructions)
+        instructions = instructions.encode('utf-8')
         conn.send(instructions)
-        answer.append(conn.recv(1024).decode('utf-8'))
-    print(type(answer))
-    print(answer[0])
+        data = conn.recv(1024).decode('utf-8')
+        answer.append(eval(data))
     return answer
 
 def register(firstName, lastName, email, username, password):
@@ -89,7 +126,8 @@ def register(firstName, lastName, email, username, password):
 def signIn(username, password):
     global signInErrorLabel        
     hashedPassword = hashlib.sha256(password.encode('utf-8'))
-    password = fetchUserInfo(('password', 'username', username))
+    data = fetchItemInfo(('password','users', 'username', username))
+    password = data[0][0]
     try:
         print('Waiting for response')
         if hashedPassword.hexdigest() == password[0]:
